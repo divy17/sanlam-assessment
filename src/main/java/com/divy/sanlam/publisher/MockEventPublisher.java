@@ -1,8 +1,10 @@
 package com.divy.sanlam.publisher;
 
-import com.divy.sanlam.model.WithdrawalEvent;
+import com.divy.sanlam.event.WithdrawalEvent;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
+@Profile("mock")
 @Component
 public class MockEventPublisher implements EventPublisher {
     @Override

@@ -1,6 +1,9 @@
+com/divy/sanlam/exception/GlobalExceptionHandler.class
 com/divy/sanlam/service/BankAccountService.class
 com/divy/sanlam/SanlamApplication.class
 com/divy/sanlam/publisher/EventPublisher.class
 com/divy/sanlam/controller/BankAccountController.class
 com/divy/sanlam/publisher/MockEventPublisher.class
-com/divy/sanlam/model/WithdrawalEvent.class
+com/divy/sanlam/publisher/SnsEventPublisher.class
+com/divy/sanlam/event/WithdrawalEvent.class
+com/divy/sanlam/repository/BankAccountRepository.class

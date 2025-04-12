@@ -1,7 +1,7 @@
 package com.divy.sanlam.controller;
 
 import com.divy.sanlam.service.BankAccountService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -10,11 +10,16 @@ import java.math.BigDecimal;
 @RequestMapping("/bank")
 public class BankAccountController {
 
-    @Autowired
-    private BankAccountService bankAccountService;
+    private final BankAccountService bankAccountService;
+
+    public BankAccountController(BankAccountService bankAccountService) {
+        this.bankAccountService = bankAccountService;
+    }
 
     @PostMapping("/withdraw")
-    public String withdraw(@RequestParam Long accountId, @RequestParam BigDecimal amount) {
-        return bankAccountService.withdraw(accountId, amount);
+    public ResponseEntity<String> withdraw(@RequestParam Long accountId,
+                                           @RequestParam BigDecimal amount) {
+        bankAccountService.withdraw(accountId, amount);
+        return ResponseEntity.ok("Withdrawal successful");
     }
 }

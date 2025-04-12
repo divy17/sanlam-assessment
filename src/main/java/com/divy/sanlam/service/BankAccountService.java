@@ -1,39 +1,63 @@
 package com.divy.sanlam.service;
 
-import com.divy.sanlam.model.WithdrawalEvent;
+import com.divy.sanlam.event.WithdrawalEvent;
 import com.divy.sanlam.publisher.EventPublisher;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.divy.sanlam.repository.BankAccountRepository;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import java.util.concurrent.CompletableFuture;
+
 
 import java.math.BigDecimal;
 
 @Service
 public class BankAccountService {
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
+    private final EventPublisher eventPublisher;
 
-    @Autowired
-    private EventPublisher eventPublisher;
+    public BankAccountService(JdbcTemplate jdbcTemplate, EventPublisher eventPublisher) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.eventPublisher = eventPublisher;
+    }
 
-    public String withdraw(Long accountId, BigDecimal amount) {
-        String checkSql = "SELECT balance FROM accounts WHERE id = ?";
-        BigDecimal currentBalance = jdbcTemplate.queryForObject(checkSql, new Object[]{accountId}, BigDecimal.class);
+    public void withdraw(Long accountId, BigDecimal amount) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Withdrawal amount must be greater than zero");
+        }
+        BigDecimal currentBalance = getBalance(accountId);
 
-        if (currentBalance == null || currentBalance.compareTo(amount) < 0) {
-            return "Insufficient funds for withdrawal";
+        if (currentBalance == null) {
+            throw new IllegalArgumentException("Account not found");
         }
 
-        String updateSql = "UPDATE accounts SET balance = balance - ? WHERE id = ?";
-        int rows = jdbcTemplate.update(updateSql, amount, accountId);
-
-        if (rows > 0) {
-            WithdrawalEvent event = new WithdrawalEvent(amount, accountId, "SUCCESSFUL");
-            eventPublisher.publish(event);
-            return "Withdrawal successful";
+        if (currentBalance.compareTo(amount) < 0) {
+            throw new IllegalStateException("Insufficient funds for withdrawal");
         }
 
-        return "Withdrawal failed";
+        int updated = jdbcTemplate.update(
+            "UPDATE accounts SET balance = balance - ? WHERE id = ?",
+            amount, accountId
+        );
+
+        if (updated == 0) {
+            throw new RuntimeException("Withdrawal failed, no rows affected");
+        }
+
+        WithdrawalEvent event = new WithdrawalEvent(amount, accountId, "SUCCESSFUL");
+        CompletableFuture.runAsync(() -> eventPublisher.publish(event));
+    }
+
+    private BigDecimal getBalance(Long accountId) {
+        try {
+            return jdbcTemplate.queryForObject(
+                "SELECT balance FROM accounts WHERE id = ?",
+                new Object[]{accountId},
+                BigDecimal.class
+            );
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
     }
 }

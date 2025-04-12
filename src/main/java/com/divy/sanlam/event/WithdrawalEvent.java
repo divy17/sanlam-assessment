@@ -1,4 +1,4 @@
-package com.divy.sanlam.model;
+package com.divy.sanlam.event;
 
 import java.math.BigDecimal;
 
@@ -33,4 +33,9 @@ public class WithdrawalEvent {
                 ", status='" + status + '\'' +
                 '}';
     }
+    public String toJson() {
+    return String.format("{\"amount\":\"%s\",\"accountId\":%d,\"status\":\"%s\"}",
+            amount, accountId, status);
+}
+
 }
