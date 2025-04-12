@@ -2,3 +2,11 @@ CREATE TABLE accounts (
     id BIGINT PRIMARY KEY,
     balance DECIMAL(19, 2)
 );
+
+CREATE TABLE IF NOT EXISTS withdrawals (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    account_id BIGINT NOT NULL,
+    amount DECIMAL(19,2) NOT NULL,
+    status VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

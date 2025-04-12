@@ -2,6 +2,7 @@
 /Users/divyan.chetty/workspace/sanlam-assessment/src/main/java/com/divy/sanlam/controller/BankAccountController.java
 /Users/divyan.chetty/workspace/sanlam-assessment/src/main/java/com/divy/sanlam/event/WithdrawalEvent.java
 /Users/divyan.chetty/workspace/sanlam-assessment/src/main/java/com/divy/sanlam/exception/GlobalExceptionHandler.java
+/Users/divyan.chetty/workspace/sanlam-assessment/src/main/java/com/divy/sanlam/model/WithdrawalRecord.java
 /Users/divyan.chetty/workspace/sanlam-assessment/src/main/java/com/divy/sanlam/publisher/EventPublisher.java
 /Users/divyan.chetty/workspace/sanlam-assessment/src/main/java/com/divy/sanlam/publisher/MockEventPublisher.java
 /Users/divyan.chetty/workspace/sanlam-assessment/src/main/java/com/divy/sanlam/publisher/SnsEventPublisher.java
