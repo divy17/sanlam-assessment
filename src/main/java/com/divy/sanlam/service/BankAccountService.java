@@ -7,6 +7,12 @@ import com.divy.sanlam.repository.BankAccountRepository;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import java.time.Instant;
+import java.time.Duration;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayDeque;
+import java.util.Deque;
+
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -18,6 +24,11 @@ public class BankAccountService {
     private final JdbcTemplate jdbcTemplate;
     private final EventPublisher eventPublisher;
     private final BankAccountRepository bankAccountRepository;
+    // In-memory rate limiting store
+    private final ConcurrentHashMap<Long, Deque<Instant>> withdrawalTimestamps = new ConcurrentHashMap<>();
+    private static final int MAX_WITHDRAWALS = 3;
+    private static final Duration TIME_WINDOW = Duration.ofMinutes(1);
+
 
     public BankAccountService(JdbcTemplate jdbcTemplate, EventPublisher eventPublisher, BankAccountRepository bankAccountRepository) {
         this.jdbcTemplate = jdbcTemplate;
@@ -26,6 +37,20 @@ public class BankAccountService {
     }
 
     public void withdraw(Long accountId, BigDecimal amount) {
+        Deque<Instant> timestamps = withdrawalTimestamps.computeIfAbsent(accountId, k -> new ArrayDeque<>());
+        synchronized (timestamps) {
+            Instant now = Instant.now();
+            // Remove timestamps outside the time window
+            while (!timestamps.isEmpty() && Duration.between(timestamps.peekFirst(), now).compareTo(TIME_WINDOW) > 0) {
+                timestamps.pollFirst();
+            }
+            if (timestamps.size() >= MAX_WITHDRAWALS) {
+                throw new IllegalStateException("Rate limit exceeded: max " + MAX_WITHDRAWALS + " withdrawals per minute.");
+            }
+            timestamps.addLast(now);
+        }
+
+
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Withdrawal amount must be greater than zero");
         }
