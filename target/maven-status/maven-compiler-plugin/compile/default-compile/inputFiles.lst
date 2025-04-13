@@ -8,3 +8,5 @@
 /Users/divyan.chetty/workspace/sanlam-assessment/src/main/java/com/divy/sanlam/publisher/SnsEventPublisher.java
 /Users/divyan.chetty/workspace/sanlam-assessment/src/main/java/com/divy/sanlam/repository/BankAccountRepository.java
 /Users/divyan.chetty/workspace/sanlam-assessment/src/main/java/com/divy/sanlam/service/BankAccountService.java
+/Users/divyan.chetty/workspace/sanlam-assessment/src/main/java/lifecycle/ExecutorHolder.java
+/Users/divyan.chetty/workspace/sanlam-assessment/src/main/java/lifecycle/GracefulShutdownManager.java

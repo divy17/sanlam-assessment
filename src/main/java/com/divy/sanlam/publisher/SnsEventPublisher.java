@@ -9,6 +9,8 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.sns.SnsClient;
 import software.amazon.awssdk.services.sns.model.PublishRequest;
 import software.amazon.awssdk.services.sns.model.PublishResponse;
+import com.divy.sanlam.lifecycle.ExecutorHolder;
+
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -19,7 +21,7 @@ import java.util.concurrent.Executors;
 public class SnsEventPublisher implements EventPublisher {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final Executor executor = Executors.newFixedThreadPool(2);
+    private final Executor executor = ExecutorHolder.getExecutor();
     private final SnsClient snsClient;
     private final String topicArn;
 
